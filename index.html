@@ -483,55 +483,166 @@
                 <!-- FORM CONTENT -->
                 <div id="mainFormWrap">
 
-                    <!-- CONTROLS BAR -->
+                    <!-- ══ UNIFIED TAB STRIP ══ -->
+                    <style>
+                    /* Reset any old controls-bar / control-btn / module-btn styles */
+                    .controls-bar {
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: 0;
+                        background: #1a2840;
+                        padding: 8px 12px;
+                        border-bottom: 1px solid rgba(255,255,255,.08);
+                    }
+                    .app-tab {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 5px;
+                        min-width: 80px;
+                        padding: 9px 14px;
+                        border: none;
+                        border-radius: 9px;
+                        cursor: pointer;
+                        font-family: 'Oswald', sans-serif;
+                        font-size: 10px;
+                        font-weight: 600;
+                        letter-spacing: .6px;
+                        text-transform: uppercase;
+                        color: #fff;
+                        transition: transform .15s, box-shadow .15s, filter .15s;
+                        position: relative;
+                        margin: 3px 3px;
+                        flex-shrink: 0;
+                    }
+                    .app-tab svg {
+                        width: 18px;
+                        height: 18px;
+                        stroke: currentColor;
+                        fill: none;
+                        stroke-width: 2;
+                        flex-shrink: 0;
+                    }
+                    .app-tab:hover {
+                        transform: translateY(-2px);
+                        filter: brightness(1.15);
+                        box-shadow: 0 4px 14px rgba(0,0,0,.35);
+                    }
+                    .app-tab:active { transform: translateY(0); filter: brightness(.95); }
+
+                    /* Lock icon overlay for password-protected tabs */
+                    .app-tab .tab-lock {
+                        position: absolute;
+                        top: 4px; right: 5px;
+                        width: 10px; height: 10px;
+                        opacity: .6;
+                    }
+                    .app-tab .tab-lock svg {
+                        width: 10px; height: 10px; stroke-width: 2.5;
+                    }
+
+                    /* Tableau 10 palette — exact colors */
+                    /* t10-blue    */ .t10-blue    { background: linear-gradient(145deg,#4e79a7,#3a6090); }
+                    /* t10-orange  */ .t10-orange  { background: linear-gradient(145deg,#f28e2b,#d67820); }
+                    /* t10-teal    */ .t10-teal    { background: linear-gradient(145deg,#76b7b2,#5da0a0); }
+                    /* t10-green   */ .t10-green   { background: linear-gradient(145deg,#59a14f,#438c3a); }
+                    /* t10-yellow  */ .t10-yellow  { background: linear-gradient(145deg,#edc949,#d4ae30); color:#333 !important; }
+                    /* t10-purple  */ .t10-purple  { background: linear-gradient(145deg,#af7aa1,#9a6291); }
+                    /* t10-pink    */ .t10-pink    { background: linear-gradient(145deg,#ff9da7,#e8818c); color:#333 !important; }
+                    /* t10-brown   */ .t10-brown   { background: linear-gradient(145deg,#9c755f,#7e5d4b); }
+                    /* t10-gray    */ .t10-gray    { background: linear-gradient(145deg,#bab0ac,#9e9490); color:#333 !important; }
+                    /* navy (ICF)  */ .t10-navy    { background: linear-gradient(145deg,#004080,#002d5a); }
+                    /* gold (ICF)  */ .t10-gold    { background: linear-gradient(145deg,#c8991a,#a07a10); }
+
+                    @media(max-width:600px){
+                        .app-tab{ min-width:64px; padding:8px 10px; font-size:9px; }
+                        .app-tab svg{ width:16px; height:16px; }
+                    }
+                    </style>
+
                     <div class="controls-bar">
-                        <button class="control-btn" id="viewDataBtn" onclick="guardedAction('viewData')">
-                            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3zM3 9h18M9 21V9"/></svg>
+
+                        <!-- ── DATA ENTRY — first tab, scrolls to form ── -->
+                        <button class="app-tab" style="background:linear-gradient(145deg,#2ca02c,#1d7a1d);" onclick="window.scrollTo({top:document.getElementById('mainFormWrap')?.offsetTop-10||0,behavior:'smooth'})" title="Data Entry Form">
+                            <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            DATA ENTRY
+                        </button>
+
+                        <!-- ── Core (password-protected) ── -->
+                        <button class="app-tab t10-blue" id="viewDataBtn" onclick="guardedAction('viewData')" title="View Data in Google Sheets">
+                            <span class="tab-lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></span>
+                            <svg viewBox="0 0 24 24"><path d="M3 3h18v18H3zM3 9h18M9 21V9"/></svg>
                             VIEW DATA
                         </button>
-                        <button class="control-btn" id="downloadDataBtn" onclick="guardedAction('download')">
-                            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+
+                        <button class="app-tab t10-teal" id="downloadDataBtn" onclick="guardedAction('download')" title="Download Data as CSV">
+                            <span class="tab-lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></span>
+                            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
                             DOWNLOAD
                         </button>
-                        <button class="control-btn" id="viewAnalysisBtn" onclick="guardedAction('analysis')">
-                            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+
+                        <button class="app-tab t10-orange" id="viewAnalysisBtn" onclick="guardedAction('analysis')" title="Analysis Dashboard">
+                            <span class="tab-lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></span>
+                            <svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
                             ANALYSIS
                         </button>
-                        <button class="control-btn" id="viewSummaryBtn" onclick="guardedAction('summary')">
-                            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+
+                        <button class="app-tab t10-green" id="viewSummaryBtn" onclick="guardedAction('summary')" title="School Coverage Summary">
+                            <span class="tab-lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></span>
+                            <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
                             SUMMARY
                         </button>
-                        <button class="control-btn update-btn" id="updateAppBtn" onclick="updateApp()">
-                            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6M3 12a9 9 0 0115.36-6.36L21 8M3 22v-6h6M21 12a9 9 0 01-15.36 6.36L3 16"/></svg>
-                            UPDATE
-                        </button>
-                        <button class="control-btn" id="aiAgentBtn" onclick="guardedAction('ai')" style="background:linear-gradient(135deg,#004080,#0066cc);color:#fff;border-color:#004080;">
-                            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><circle cx="9" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1" fill="currentColor" stroke="none"/></svg>
+
+                        <button class="app-tab t10-navy" id="aiAgentBtn" onclick="guardedAction('ai')" title="AI Data Agent">
+                            <span class="tab-lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></span>
+                            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><circle cx="9" cy="10" r="1" fill="white" stroke="none"/><circle cx="12" cy="10" r="1" fill="white" stroke="none"/><circle cx="15" cy="10" r="1" fill="white" stroke="none"/></svg>
                             AI AGENT
                         </button>
-                        <button onclick="openVideoModal()" class="control-btn" id="videoGuideBtn" style="background:linear-gradient(135deg,#1a5a1a,#28a745);color:#fff;border-color:#28a745;">
-                            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
-                            VIDEO GUIDE
+
+                        <!-- ── Module tabs ── -->
+                        <button class="app-tab t10-purple"  onclick="guardedAction('monitoring')"     title="Monitoring">
+                            <span class="tab-lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></span>
+                            <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+                            MONITORING
                         </button>
-                        <!-- Module tab buttons -->
-                        <button class="module-btn" onclick="openModule('monitoring')"     style="background:#fff;color:#004080;border-color:#004080;">
-                            <svg viewBox="0 0 24 24" stroke-width="2"><path d="M3 3h18v18H3zM3 9h18M9 21V9"/></svg>MONITORING
+
+                        <button class="app-tab t10-brown"  onclick="guardedAction('reconciliation')" title="ITN Reconciliation">
+                            <span class="tab-lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></span>
+                            <svg viewBox="0 0 24 24"><path d="M9 7h6M9 11h6M9 15h4M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"/></svg>
+                            RECONCILIATION
                         </button>
-                        <button class="module-btn" onclick="openModule('reconciliation')" style="background:#fff;color:#1a7a4a;border-color:#1a7a4a;">
-                            <svg viewBox="0 0 24 24" stroke-width="2"><path d="M9 7h6M9 11h6M9 15h4M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"/></svg>RECONCILIATION
+
+                        <button class="app-tab t10-yellow" onclick="guardedAction('device')"         title="Device Tracking">
+                            <span class="tab-lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></span>
+                            <svg viewBox="0 0 24 24"><path d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                            DEVICES
                         </button>
-                        <button class="module-btn" onclick="openModule('device')"         style="background:#fff;color:#7a1a7a;border-color:#7a1a7a;">
-                            <svg viewBox="0 0 24 24" stroke-width="2"><path d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>DEVICES
+
+                        <button class="app-tab t10-pink"   onclick="guardedAction('movement')"       title="ITN Movement">
+                            <span class="tab-lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></span>
+                            <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                            ITN MOVEMENT
                         </button>
-                        <button class="module-btn" onclick="openModule('movement')"       style="background:#fff;color:#b8430a;border-color:#b8430a;">
-                            <svg viewBox="0 0 24 24" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>ITN MOVEMENT
+
+                        <button class="app-tab t10-gold"   onclick="guardedAction('attendance')"     title="Attendance & Payment">
+                            <span class="tab-lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></span>
+                            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+                            ATTENDANCE
                         </button>
-                        <button class="module-btn" onclick="openModule('attendance')"     style="background:#fff;color:#0a5a7a;border-color:#0a5a7a;">
-                            <svg viewBox="0 0 24 24" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>ATTENDANCE
+
+                        <button class="app-tab" style="background:linear-gradient(145deg,#17becf,#109aaa);" onclick="guardedAction('report')" title="Distribution Report">
+                            <span class="tab-lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></span>
+                            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+                            REPORT
                         </button>
-                        <button class="module-btn" onclick="openModule('report')"         style="background:#fff;color:#6a4a0a;border-color:#6a4a0a;">
-                            <svg viewBox="0 0 24 24" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>REPORT
+
+                        <!-- ── UPDATE — always last ── -->
+                        <button class="app-tab t10-gray" id="updateAppBtn" onclick="updateApp()" title="Check for Updates">
+                            <svg viewBox="0 0 24 24"><path d="M21 2v6h-6M3 12a9 9 0 0115.36-6.36L21 8M3 22v-6h6M21 12a9 9 0 01-15.36 6.36L3 16"/></svg>
+                            UPDATE
                         </button>
+
                     </div>
 
                     <!-- PASSWORD MODAL -->
@@ -557,44 +668,86 @@
                     </div>
 
                     <script>
-                    // ── Password gate ────────────────────────────────
-                    const PROTECTED_PASS = 'admin123';
-                    let _pwdUnlocked = false;   // stays unlocked for the session
+                    // ╔══════════════════════════════════════════════════════╗
+                    //  TAB PASSWORD CONFIGURATION
+                    //  To give a tab its own password, change its value below.
+                    //  To use the same master password for all, set them all
+                    //  to the same value (currently 'admin123').
+                    //  Set a tab to '' (empty string) to make it open freely.
+                    // ╚══════════════════════════════════════════════════════╝
+                    const TAB_PASSWORDS = {
+                        // ── Core tabs ──────────────────────────────────────
+                        viewData:       'admin123',   // VIEW DATA
+                        download:       'admin123',   // DOWNLOAD
+                        analysis:       'admin123',   // ANALYSIS
+                        summary:        'admin123',   // SUMMARY
+                        ai:             'admin123',   // AI AGENT
+                        // ── Module tabs ────────────────────────────────────
+                        monitoring:     'admin123',   // MONITORING
+                        reconciliation: 'admin123',   // ITN RECONCILIATION
+                        device:         'admin123',   // DEVICES
+                        movement:       'admin123',   // ITN MOVEMENT
+                        attendance:     'admin123',   // ATTENDANCE & PAYMENT
+                        report:         'admin123',   // DISTRIBUTION REPORT
+                    };
+
+                    // Tab labels (shown in the password modal)
+                    const TAB_LABELS = {
+                        viewData:       'View Data — Supervisor Access',
+                        download:       'Download Data — Supervisor Access',
+                        analysis:       'Analysis Dashboard — Supervisor Access',
+                        summary:        'School Summary — Supervisor Access',
+                        ai:             'AI Agent — Supervisor Access',
+                        monitoring:     'Monitoring Module',
+                        reconciliation: 'ITN Reconciliation Module',
+                        device:         'Device Tracking Module',
+                        movement:       'ITN Movement Module',
+                        attendance:     'Attendance & Payment Module',
+                        report:         'Distribution Report Module',
+                    };
+
+                    // ── Session unlock cache (per-tab) ─────────────────────
+                    // Once a tab's password is entered correctly it stays
+                    // unlocked for the session. Each tab tracks independently.
+                    const _unlocked = {};
                     let _pwdPendingAction = null;
 
                     window.guardedAction = function(action) {
-                        if (_pwdUnlocked) { _executeAction(action); return; }
+                        const pwd = TAB_PASSWORDS[action];
+                        // No password configured → open freely
+                        if (!pwd) { _executeAction(action); return; }
+                        // Already unlocked this session → open freely
+                        if (_unlocked[action]) { _executeAction(action); return; }
+                        // Show password modal
                         _pwdPendingAction = action;
-                        const labels = {
-                            viewData:'View Data — Supervisor Access',
-                            download:'Download Data — Supervisor Access',
-                            analysis:'Analysis Dashboard — Supervisor Access',
-                            summary: 'School Summary — Supervisor Access',
-                            ai:      'AI Agent — Supervisor Access'
-                        };
-                        document.getElementById('pwdModalLabel').textContent = labels[action] || 'Enter password to continue';
+                        document.getElementById('pwdModalLabel').textContent =
+                            TAB_LABELS[action] || 'Enter password to continue';
                         document.getElementById('pwdError').style.display = 'none';
                         document.getElementById('pwdInput').value = '';
-                        const modal = document.getElementById('pwdModal');
-                        modal.style.display = 'flex';
+                        document.getElementById('pwdModal').style.display = 'flex';
                         setTimeout(() => document.getElementById('pwdInput').focus(), 100);
                     };
 
                     window.submitPwd = function() {
-                        const val = document.getElementById('pwdInput').value;
-                        if (val === PROTECTED_PASS) {
-                            _pwdUnlocked = true;
+                        const action = _pwdPendingAction;
+                        const val    = document.getElementById('pwdInput').value;
+                        const pwd    = TAB_PASSWORDS[action] || '';
+                        if (val === pwd) {
+                            _unlocked[action] = true;
                             closePwdModal();
-                            if (_pwdPendingAction) { _executeAction(_pwdPendingAction); _pwdPendingAction = null; }
+                            _executeAction(action);
+                            _pwdPendingAction = null;
                         } else {
                             document.getElementById('pwdError').style.display = 'block';
                             document.getElementById('pwdInput').value = '';
                             document.getElementById('pwdInput').focus();
-                            // shake animation
                             const inp = document.getElementById('pwdInput');
                             inp.style.borderColor = '#dc3545';
-                            inp.style.animation = 'pwdShake .3s ease';
-                            setTimeout(() => { inp.style.animation = ''; inp.style.borderColor = '#d0d8e0'; }, 400);
+                            inp.style.animation   = 'pwdShake .3s ease';
+                            setTimeout(() => {
+                                inp.style.animation   = '';
+                                inp.style.borderColor = '#d0d8e0';
+                            }, 400);
                         }
                     };
 
@@ -604,11 +757,13 @@
                     };
 
                     function _executeAction(action) {
-                        if (action === 'viewData')  { window.open('https://docs.google.com/spreadsheets/d/1cXlYiTMzcRP1BCj9mt1JXoK_pjgWbRtDEEQUPMg2HPs/edit?usp=sharing','_blank'); }
-                        if (action === 'download')  { window._downloadData && window._downloadData(); }
-                        if (action === 'analysis')  { window.openAnalysisModal && window.openAnalysisModal(); }
-                        if (action === 'summary')   { window.openSummaryModal && window.openSummaryModal(); }
-                        if (action === 'ai')        { window.icfAiOpen && window.icfAiOpen(); }
+                        if (action === 'viewData')       { window.open('https://docs.google.com/spreadsheets/d/1cXlYiTMzcRP1BCj9mt1JXoK_pjgWbRtDEEQUPMg2HPs/edit?usp=sharing','_blank'); }
+                        else if (action === 'download')  { window._downloadData && window._downloadData(); }
+                        else if (action === 'analysis')  { window.openAnalysisModal && window.openAnalysisModal(); }
+                        else if (action === 'summary')   { window.openSummaryModal && window.openSummaryModal(); }
+                        else if (action === 'ai')        { window.icfAiOpen && window.icfAiOpen(); }
+                        // Module tabs
+                        else { window.openModule && window.openModule(action); }
                     }
                     </script>
                     <style>
@@ -1147,14 +1302,14 @@
     <div id="mod-report"        class="module-overlay"></div>
 
     <script>
-    // Module definitions
+    // Module definitions with Tableau 10 colors
     const MODULES = [
-        { id:'monitoring',     file:'monitoring.html',           label:'Monitoring',                   icon:'M3 3h18v18H3zM3 9h18M9 21V9' },
-        { id:'reconciliation', file:'itn_reconciliation.html',   label:'ITN Reconciliation',           icon:'M9 7h6M9 11h6M9 15h4M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z' },
-        { id:'device',         file:'device_tracking.html',      label:'Device Tracking',              icon:'M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z' },
-        { id:'movement',       file:'itn_movement.html',         label:'ITN Movement',                 icon:'M5 12h14M12 5l7 7-7 7' },
-        { id:'attendance',     file:'attendance_payment.html',   label:'Attendance & Payment',         icon:'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 7a4 4 0 100 8 4 4 0 000-8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75' },
-        { id:'report',         file:'distribution_report.html',  label:'Distribution Report',          icon:'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8' }
+        { id:'monitoring',     file:'monitoring.html',           label:'Monitoring',             icon:'M2 3h20v14H2zM8 21h8M12 17v4',                                                                                     color:'#af7aa1', dark:'#9a6291' },
+        { id:'reconciliation', file:'itn_reconciliation.html',   label:'ITN Reconciliation',     icon:'M9 7h6M9 11h6M9 15h4M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z',                                 color:'#9c755f', dark:'#7e5d4b' },
+        { id:'device',         file:'device_tracking.html',      label:'Device Tracking',        icon:'M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z',                                    color:'#d4ae30', dark:'#b89520' },
+        { id:'movement',       file:'itn_movement.html',         label:'ITN Movement',           icon:'M5 12h14M12 5l7 7-7 7',                                                                                            color:'#ff9da7', dark:'#e8818c' },
+        { id:'attendance',     file:'attendance_payment.html',   label:'Attendance & Payment',   icon:'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 7a4 4 0 100 8 4 4 0 000-8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75', color:'#c8991a', dark:'#a07a10' },
+        { id:'report',         file:'distribution_report.html',  label:'Distribution Report',    icon:'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8',                          color:'#17becf', dark:'#109aaa' }
     ];
 
     // Build each overlay on first open (lazy)
@@ -1167,7 +1322,7 @@
         if (!el.dataset.built) {
             el.dataset.built = '1';
             el.innerHTML = `
-              <div class="module-topbar">
+              <div class="module-topbar" style="background:linear-gradient(135deg,${mod.dark},${mod.color});">
                 <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="20" height="20" style="flex-shrink:0"><path d="${mod.icon}"/></svg>
                 <div class="module-title">${mod.label}</div>
                 <button class="module-close" onclick="closeModule('${id}')">
