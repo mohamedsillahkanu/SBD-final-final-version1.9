@@ -598,7 +598,7 @@ function showDeviceCard(mode, data, topClass, badgeClass, badgeText, note, showA
     if (showAction && mode === 'register') actionHTML = '<button class="action-btn register-action" onclick="confirmRegister()"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>REGISTER THIS DEVICE</button>';
     else if (showAction && mode === 'return') actionHTML = '<button class="action-btn return-action" onclick="confirmReturn()"><svg viewBox="0 0 24 24" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>CONFIRM RETURN</button>';
     var noteHTML = note ? '<div style="background:var(--red-bg);padding:10px 14px;border-radius:10px;font-size:13px;color:var(--text-mid);font-weight:500;margin-bottom:16px;">' + note + '</div>' : '';
-    card.innerHTML = '<div class="device-card-top ' + topClass + '"><div class="device-status-badge ' + badgeClass + '">' + badgeText + '</div><div class="device-person">' + (data.name || 'Unknown') + '</div><div class="device-phone">' + (data.phone || '—') + '</div><div class="device-code-display">' + data.code + '</div></div><div class="device-body">' + noteHTML + '<div class="info-grid"><div class="info-cell"><div class="info-key">District</div><div class="info-val">' + (data.district || '—') + '</div></div><div class="info-cell"><div class="info-key">Chiefdom</div><div class="info-val">' + (data.chiefdom || '—') + '</div></div><div class="info-cell"><div class="info-key">Section</div><div class="info-val">' + (data.section || '—') + '</div></div><div class="info-cell"><div class="info-key">Health Facility</div><div class="info-val">' + (data.facility || '—') + '</div></div><div class="info-cell"><div class="info-key">Community</div><div class="info-val">' + (data.community || '—') + '</div></div><div class="info-cell"><div class="info-key">School</div><div class="info-val">' + (data.school || '—') + '</div></div></div>' + actionHTML + '</div>';
+    card.innerHTML = '<div class="device-card-top ' + topClass + '"><div class="device-status-badge ' + badgeClass + '">' + badgeText + '</div><div class="device-person">' + (data.name || 'Unknown') + '</div><div class="device-phone">' + (data.phone || '—') + '</div><div class="device-code-display">' + data.code + '</div></div><div class="device-body">' + noteHTML + '<div class="info-grid"><div class="info-cell"><div class="info-key">Name</div><div class="info-val">' + (data.name || '—') + '</div></div><div class="info-cell"><div class="info-key">Role</div><div class="info-val">' + (data.role || '—') + '</div></div><div class="info-cell"><div class="info-key">Telephone</div><div class="info-val">' + (data.phone || '—') + '</div></div><div class="info-cell"><div class="info-key">District</div><div class="info-val">' + (data.district || '—') + '</div></div><div class="info-cell"><div class="info-key">Chiefdom</div><div class="info-val">' + (data.chiefdom || '—') + '</div></div><div class="info-cell"><div class="info-key">Health Facility</div><div class="info-val">' + (data.facility || '—') + '</div></div></div>' + actionHTML + '</div>';
     card.dataset.deviceData = JSON.stringify(data);
     card.classList.add('show');
 }
@@ -627,8 +627,18 @@ function scanAgain(mode) {
 function submitToSheets(record, callback) {
     if (!hasValidURL() || !isOnline) { callback(false); return; }
     // Add GAS action based on record action
-    var payload = Object.assign({}, record);
-    payload.action = record.action === 'REGISTER' ? 'device_register' : 'device_return';
+    var payload = {
+        action:   record.action === 'REGISTER' ? 'device_register' : 'device_return',
+        code:     record.code,
+        name:     record.name,
+        phone:    record.phone,
+        role:     record.role,
+        district: record.district,
+        chiefdom: record.chiefdom,
+        facility: record.facility,
+        year:     record.year,
+        timestamp: record.timestamp
+    };
     fetch(SCRIPT_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) })
         .then(function() { callback(true); }).catch(function() { callback(false); });
 }
@@ -697,12 +707,12 @@ function updateHistory() {
     document.getElementById('reg-count').textContent = outDevices.length;
     var regList = document.getElementById('reg-list');
     regList.innerHTML = allRegs.length === 0 ? '<div class="history-empty">No devices registered yet</div>' :
-        allRegs.map(function(d) { return '<div class="history-item"><div class="history-dot reg"></div><div class="history-info"><div class="history-name">' + (d.name||'Unknown') + '</div><div class="history-meta">' + (d.district||'') + ' · ' + (d.school||'') + ' · ' + formatTime(d.timestamp) + '</div></div><div class="history-code">' + d.code + '</div></div>'; }).join('');
+        allRegs.map(function(d) { return '<div class="history-item"><div class="history-dot reg"></div><div class="history-info"><div class="history-name">' + (d.name||'Unknown') + '</div><div class="history-meta">' + (d.role||'') + ' · ' + (d.district||'') + ' · ' + formatTime(d.timestamp) + '</div></div><div class="history-code">' + d.code + '</div></div>'; }).join('');
     var allRets = [...returnedDevices].reverse().slice(0, 30);
     document.getElementById('ret-count').textContent = returnedDevices.length;
     var retList = document.getElementById('ret-list');
     retList.innerHTML = allRets.length === 0 ? '<div class="history-empty">No devices returned yet</div>' :
-        allRets.map(function(d) { return '<div class="history-item"><div class="history-dot ret"></div><div class="history-info"><div class="history-name">' + (d.name||'Unknown') + '</div><div class="history-meta">' + (d.district||'') + ' · ' + (d.school||'') + ' · ' + formatTime(d.timestamp) + '</div></div><div class="history-code">' + d.code + '</div></div>'; }).join('');
+        allRets.map(function(d) { return '<div class="history-item"><div class="history-dot ret"></div><div class="history-info"><div class="history-name">' + (d.name||'Unknown') + '</div><div class="history-meta">' + (d.role||'') + ' · ' + (d.district||'') + ' · ' + formatTime(d.timestamp) + '</div></div><div class="history-code">' + d.code + '</div></div>'; }).join('');
 }
 
 function updateSyncInfo() {
@@ -815,14 +825,14 @@ function renderDashList() {
     var listEl = document.getElementById('dList');
     listEl.innerHTML = devices.length === 0 ?
         '<div class="devices-empty"><svg viewBox="0 0 24 24" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="16 8 10 16 7 13"/></svg><p>' + (d||c||s ? 'No unreturned devices match this filter' : 'All devices have been returned!') + '</p></div>' :
-        devices.map(function(x) { return '<div class="device-row"><div class="device-row-top"><div class="device-row-name">' + (x.name||'Unknown') + '</div><div class="device-row-code">' + x.code + '</div></div><div class="device-row-phone">' + (x.phone||'—') + '</div><div class="device-row-details">' + [x.district,x.chiefdom,x.facility,x.school].filter(Boolean).map(function(t){return '<span class="device-row-tag">'+t+'</span>';}).join('') + '</div><div class="device-row-time"><svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Registered: ' + formatTime(x.timestamp) + '</div></div>'; }).join('');
+        devices.map(function(x) { return '<div class="device-row"><div class="device-row-top"><div class="device-row-name">' + (x.name||'Unknown') + '</div><div class="device-row-code">' + x.code + '</div></div><div class="device-row-phone">' + (x.phone||'—') + '</div><div class="device-row-details">' + [x.role,x.district,x.chiefdom,x.facility].filter(Boolean).map(function(t){return '<span class="device-row-tag">'+t+'</span>';}).join('') + '</div><div class="device-row-time"><svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Registered: ' + formatTime(x.timestamp) + '</div></div>'; }).join('');
     var returned = returnedDevices.filter(function(x) { return (!d||x.district===d)&&(!c||x.chiefdom===c)&&(!s||x.section===s)&&(!f||x.facility===f)&&(!co||x.community===co)&&(!sc||x.school===sc); });
     returned.sort(function(a,b) { return new Date(b.timestamp)-new Date(a.timestamp); });
     document.getElementById('dRetListCount').textContent = returned.length;
     var retEl = document.getElementById('dRetList');
     retEl.innerHTML = returned.length === 0 ?
         '<div class="devices-empty"><svg viewBox="0 0 24 24" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg><p>' + (d||c ? 'No returned devices match this filter' : 'No devices returned yet') + '</p></div>' :
-        returned.map(function(x) { return '<div class="device-row"><div class="device-row-top"><div class="device-row-name">' + (x.name||'Unknown') + '</div><div class="device-row-code" style="color:var(--green-dark);">' + x.code + '</div></div><div class="device-row-phone">' + (x.phone||'—') + '</div><div class="device-row-details">' + [x.district,x.chiefdom,x.facility,x.school].filter(Boolean).map(function(t){return '<span class="device-row-tag">'+t+'</span>';}).join('') + '</div><div class="device-row-time" style="color:var(--green-dark);"><svg viewBox="0 0 24 24" stroke-width="2" style="stroke:var(--green-dark);"><polyline points="20 6 9 17 4 12"/></svg>Returned: ' + formatTime(x.timestamp) + '</div></div>'; }).join('');
+        returned.map(function(x) { return '<div class="device-row"><div class="device-row-top"><div class="device-row-name">' + (x.name||'Unknown') + '</div><div class="device-row-code" style="color:var(--green-dark);">' + x.code + '</div></div><div class="device-row-phone">' + (x.phone||'—') + '</div><div class="device-row-details">' + [x.role,x.district,x.chiefdom,x.facility].filter(Boolean).map(function(t){return '<span class="device-row-tag">'+t+'</span>';}).join('') + '</div><div class="device-row-time" style="color:var(--green-dark);"><svg viewBox="0 0 24 24" stroke-width="2" style="stroke:var(--green-dark);"><polyline points="20 6 9 17 4 12"/></svg>Returned: ' + formatTime(x.timestamp) + '</div></div>'; }).join('');
 }
 
 // ============================================
