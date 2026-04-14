@@ -42,17 +42,6 @@
         .tab-btn.register.active { background: linear-gradient(135deg, var(--gold), var(--gold-light)); }
         .tab-btn.return.active { background: linear-gradient(135deg, var(--green), #34d399); color: #fff; }
         .tab-btn.dashboard.active { background: linear-gradient(135deg, var(--navy-light), var(--navy)); color: #fff; }
-        .tab-btn.tracking.active { background: linear-gradient(135deg, #7c3aed, #5b21b6); color: #fff; }
-        .tracking-table { width:100%; border-collapse:collapse; font-size:11px; }
-        .tracking-table th { background:var(--navy); color:#fff; padding:8px 10px; text-align:left; font-size:10px; letter-spacing:.5px; }
-        .tracking-table td { padding:8px 10px; border-bottom:1px solid #f1f5f9; vertical-align:top; }
-        .tracking-table tr:hover td { background:#f8fafc; }
-        .status-out { background:#fef3c7; color:#92400e; padding:2px 8px; border-radius:10px; font-size:9px; font-weight:700; white-space:nowrap; }
-        .status-ret { background:#d1fae5; color:#065f46; padding:2px 8px; border-radius:10px; font-size:9px; font-weight:700; white-space:nowrap; }
-        .tracking-empty { text-align:center; padding:40px; color:var(--text-light); font-size:13px; }
-        .pull-btn { background:var(--navy); color:#fff; border:none; border-radius:8px; padding:8px 16px; font-family:Bebas Neue,sans-serif; font-size:13px; letter-spacing:1px; cursor:pointer; display:flex; align-items:center; gap:6px; }
-        .pull-btn svg { width:14px; height:14px; stroke:currentColor; fill:none; }
-        .pull-btn:disabled { opacity:.5; cursor:not-allowed; }
 
         /* ===== MAIN ===== */
         .main { max-width: 540px; margin: 0 auto; padding: 16px 16px 40px; }
@@ -287,10 +276,6 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
                 DASHBOARD
             </button>
-            <button class="tab-btn tracking" onclick="switchTab('tracking')">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                TRACKING
-            </button>
         </div>
     </div>
 
@@ -419,44 +404,6 @@
                 </div>
                 <div class="devices-list" id="dRetList"><div class="devices-empty"><svg viewBox="0 0 24 24" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg><p>No devices returned yet</p></div></div>
             </div>
-        <!-- TRACKING TAB — pulls from Google Sheets -->
-        <div class="tab-panel" id="panel-tracking">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-                <div style="font-family:Bebas Neue,sans-serif;font-size:16px;letter-spacing:2px;color:var(--navy);">DEVICE TRACKING RECORDS</div>
-                <button class="pull-btn" id="pullBtn" onclick="pullFromSheets()">
-                    <svg viewBox="0 0 24 24"><path d="M21 2v6h-6M3 12a9 9 0 0115.36-6.36L21 8M3 22v-6h6M21 12a9 9 0 01-15.36 6.36L3 16"/></svg>
-                    PULL FROM SHEETS
-                </button>
-            </div>
-            <div id="pullStatus" style="font-size:11px;color:var(--text-light);margin-bottom:10px;"></div>
-
-            <!-- Summary stats -->
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;" id="trackingStats"></div>
-
-            <!-- Records table -->
-            <div style="background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.05);overflow:hidden;">
-                <div style="overflow-x:auto;">
-                    <table class="tracking-table">
-                        <thead>
-                            <tr>
-                                <th>Status</th>
-                                <th>Device ID</th>
-                                <th>Name</th>
-                                <th>Role</th>
-                                <th>District</th>
-                                <th>Chiefdom</th>
-                                <th>Facility</th>
-                                <th>Issued At</th>
-                                <th>Returned At</th>
-                            </tr>
-                        </thead>
-                        <tbody id="trackingBody">
-                            <tr><td colspan="9" class="tracking-empty">Tap PULL FROM SHEETS to load records</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
         </div>
     </div>
 
@@ -510,7 +457,6 @@ function switchTab(tab) {
     document.getElementById('msg-register').classList.remove('show');
     document.getElementById('msg-return').classList.remove('show');
     if (tab === 'dashboard') updateDashboard();
-    if (tab === 'tracking')  renderTrackingFromLocal();
 }
 
 // ============================================
@@ -707,7 +653,7 @@ function submitToSheets(record, callback) {
         district:  record.district  || '',
         chiefdom:  record.chiefdom  || '',
         facility:  record.facility  || '',
-        year:      record.year      || new Date().getFullYear().toString(),
+        year:      record.year      || '',
         timestamp: record.timestamp || new Date().toISOString()
     };
     fetch(SCRIPT_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) })
@@ -725,10 +671,6 @@ async function flushPendingQueue() {
             if (idx !== -1) pendingQueue.splice(idx, 1);
             synced++;
         } catch(e) { break; }
-    }
-    if (synced > 0) {
-        lastSyncTime = new Date().toISOString();
-        localStorage.setItem('dt_last_sync', lastSyncTime);
     }
     saveLocal(); updateAll();
     if (synced > 0) showNotif(synced + ' record(s) synced!', 'success');
@@ -791,7 +733,7 @@ function updateHistory() {
 }
 
 function updateSyncInfo() {
-    document.getElementById('syncTime').textContent = lastSyncTime ? '✓ Last synced: ' + formatTime(lastSyncTime) : (hasValidURL() ? 'Ready to sync when records exist' : 'Google Sheets URL not configured');
+    document.getElementById('syncTime').textContent = lastSyncTime ? 'Last sync: ' + formatTime(lastSyncTime) : (hasValidURL() ? 'Waiting...' : 'Google Sheets URL not configured');
 }
 
 function updatePendingBadge() {
@@ -942,109 +884,6 @@ async function silentSync() {
 
 document.addEventListener('visibilitychange', function() { if (!document.hidden && isOnline && hasValidURL()) silentSync(); });
 window.addEventListener('online', function() { updateOnlineStatus(); if (hasValidURL()) { showNotif('Back online — syncing...','info'); setTimeout(function(){flushPendingQueue();silentSync();},1000); } });
-
-// ============================================
-// TRACKING TAB — pull from Google Sheets
-// ============================================
-var trackingRecords = [];
-
-async function pullFromSheets() {
-    var btn = document.getElementById('pullBtn');
-    var statusEl = document.getElementById('pullStatus');
-    btn.disabled = true;
-    btn.innerHTML = '<svg viewBox="0 0 24 24" style="animation:spin .7s linear infinite"><path d="M21 2v6h-6M3 12a9 9 0 0115.36-6.36L21 8M3 22v-6h6M21 12a9 9 0 01-15.36 6.36L3 16"/></svg> PULLING...';
-    statusEl.textContent = 'Fetching from Google Sheets...';
-
-    try {
-        var res = await Promise.race([
-            fetch(SCRIPT_URL + '?action=getDeviceTracking&t=' + Date.now()),
-            new Promise(function(_,r){ setTimeout(function(){ r(new Error('timeout')); }, 10000); })
-        ]);
-        var json = await res.json();
-        if (json && json.records) {
-            trackingRecords = json.records;
-            statusEl.textContent = '✓ ' + trackingRecords.length + ' records loaded from Sheets · ' + new Date().toLocaleTimeString();
-            renderTrackingTable(trackingRecords);
-        } else {
-            statusEl.textContent = '⚠ No records returned from Sheets.';
-        }
-    } catch(e) {
-        // Fall back to local records
-        statusEl.textContent = '⚠ Could not reach Sheets — showing local records.';
-        renderTrackingFromLocal();
-    }
-
-    btn.disabled = false;
-    btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M21 2v6h-6M3 12a9 9 0 0115.36-6.36L21 8M3 22v-6h6M21 12a9 9 0 01-15.36 6.36L3 16"/></svg> PULL FROM SHEETS';
-}
-
-function renderTrackingFromLocal() {
-    // Show local device records while offline
-    var all = [...registeredDevices, ...returnedDevices];
-    all.sort(function(a,b){ return new Date(b.timestamp) - new Date(a.timestamp); });
-    var mapped = all.map(function(r) {
-        return {
-            status:      r.action === 'REGISTER' ? 'Device Out' : 'Returned',
-            code:        r.code     || '',
-            name:        r.name     || '',
-            role:        r.role     || '',
-            district:    r.district || '',
-            chiefdom:    r.chiefdom || '',
-            facility:    r.facility || '',
-            issued_at:   r.action === 'REGISTER' ? r.timestamp : '',
-            returned_at: r.action === 'RETURN'   ? r.timestamp : ''
-        };
-    });
-    renderTrackingTable(mapped);
-    document.getElementById('pullStatus').textContent = 'Showing local records. Tap PULL FROM SHEETS to load all.';
-}
-
-function renderTrackingTable(records) {
-    var out = records.filter(function(r){ return (r.status||'').toLowerCase().indexOf('out') !== -1; }).length;
-    var ret = records.filter(function(r){ return (r.status||'').toLowerCase().indexOf('return') !== -1; }).length;
-
-    document.getElementById('trackingStats').innerHTML =
-        '<div style="background:#fff;border-radius:10px;padding:12px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.05);border-top:3px solid var(--gold);">' +
-            '<div style="font-family:Bebas Neue,sans-serif;font-size:28px;color:var(--gold-dark);">' + records.length + '</div>' +
-            '<div style="font-size:10px;color:var(--text-light);">TOTAL</div></div>' +
-        '<div style="background:#fff;border-radius:10px;padding:12px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.05);border-top:3px solid var(--red);">' +
-            '<div style="font-family:Bebas Neue,sans-serif;font-size:28px;color:var(--red);">' + out + '</div>' +
-            '<div style="font-size:10px;color:var(--text-light);">DEVICES OUT</div></div>' +
-        '<div style="background:#fff;border-radius:10px;padding:12px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.05);border-top:3px solid var(--green);">' +
-            '<div style="font-family:Bebas Neue,sans-serif;font-size:28px;color:var(--green-dark);">' + ret + '</div>' +
-            '<div style="font-size:10px;color:var(--text-light);">RETURNED</div></div>';
-
-    var tbody = document.getElementById('trackingBody');
-    if (!records.length) {
-        tbody.innerHTML = '<tr><td colspan="9" class="tracking-empty">No records found</td></tr>';
-        return;
-    }
-    tbody.innerHTML = records.map(function(r) {
-        var isOut = (r.status||'').toLowerCase().indexOf('out') !== -1;
-        var badge = isOut
-            ? '<span class="status-out">DEVICE OUT</span>'
-            : '<span class="status-ret">RETURNED</span>';
-        return '<tr>' +
-            '<td>' + badge + '</td>' +
-            '<td style="font-weight:700;color:var(--navy);">' + (r.code||r['Device ID']||'—') + '</td>' +
-            '<td>' + (r.name||r['Full Name']||'—') + '</td>' +
-            '<td>' + (r.role||r['Role']||'—') + '</td>' +
-            '<td>' + (r.district||r['District']||'—') + '</td>' +
-            '<td>' + (r.chiefdom||r['Chiefdom']||'—') + '</td>' +
-            '<td>' + (r.facility||r['Health Facility']||'—') + '</td>' +
-            '<td style="font-size:10px;color:var(--text-light);">' + formatTrackTime(r.issued_at||r['Issued At']||'') + '</td>' +
-            '<td style="font-size:10px;color:var(--text-light);">' + formatTrackTime(r.returned_at||r['Returned At']||'') + '</td>' +
-            '</tr>';
-    }).join('');
-}
-
-function formatTrackTime(ts) {
-    if (!ts) return '—';
-    try {
-        var d = new Date(ts);
-        return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-    } catch(e) { return ts; }
-}
 
 // ============================================
 // INIT
